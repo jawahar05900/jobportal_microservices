@@ -32,16 +32,16 @@ docker-compose up
 ## Usage
 1. Access the application:
 
-Service 1: http://localhost:8081
-Service 2: http://localhost:8082
-Service 3: http://localhost:8083
+-Service 1: http://localhost:8081
+-Service 2: http://localhost:8082
+-Service 3: http://localhost:8083
 
 2. API Endpoints:
 
-GET /api/job: Fetches all job listings.
-POST /api/job: Creates a new job listing.
-PUT /api/job/{id}: Updates an existing job listing.
-DELETE /api/job/{id}: Deletes a job listing.
+-GET /api/job: Fetches all job listings.
+-POST /api/job: Creates a new job listing.
+-PUT /api/job/{id}: Updates an existing job listing.
+-DELETE /api/job/{id}: Deletes a job listing.
 
 ## Api Access
 
