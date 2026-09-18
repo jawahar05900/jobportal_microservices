@@ -1,106 +1,91 @@
-# Job Portal Application - Microservices Architecture  
-🛠️ **A Comprehensive Job Portal System Built Using Spring Boot and Microservices**  
+# Job Portal — Microservices
 
----
+A refactor of the monolithic Job Portal application into 3 independent Spring Boot microservices, each with its own database.
 
-## 🚀 About the Project  
-This **Job Portal Application** demonstrates a robust and scalable microservices-based architecture for managing job postings, applications, and user interactions. The project leverages **Spring Boot** and industry-standard microservices practices to deliver a modular and scalable solution.  
+## Services
 
-### ✨ Key Features  
-- **User Management:** Role-based access for Employers, Job Seekers, and Admins.  
-- **Job Postings:** Employers can create, update, and delete job postings.  
-- **Job Applications:** Seamless application process for job seekers.  
-- **Microservices Communication:** Efficient inter-service communication using **Feign Clients** and **Eureka Server**.  
-- **Database Integration:** Persistent data storage using **PostgreSQL**.  
-- **Scalability:** Fully containerized with **Docker** and deployable using **Kubernetes**.  
+| Service | Port | Responsibility | Database |
+|---|---|---|---|
+| `companyms` | 8081 | Company management | `company` (PostgreSQL) |
+| `jobms` | 8082 | Job postings | `job` (PostgreSQL) |
+| `reviewms` | 8084 | Company reviews | `review` (PostgreSQL) |
 
----
+Each service is fully independent — there is currently **no service discovery, API gateway, or inter-service communication** between them. This is a planned next step (see Roadmap).
 
-## 📂 Project Structure  
-- jobportal_microservices/
-- ├── service-registry/ # Eureka Server for service discovery
-- ├── api-gateway/ # API Gateway for routing requests
-- ├── job-service/ # Microservice for managing jobs
-- ├── user-service/ # Microservice for user management
-- ├── application-service/ # Microservice for job applications
-- └── README.md # Project documentation
+## Tech Stack
 
+- **Java 17**
+- **Spring Boot 3.3.4**
+- **Spring Data JPA** (Hibernate)
+- **PostgreSQL** — one database per service
+- **H2** — available as a dependency, currently commented out in favor of PostgreSQL
+- **Maven**
 
----
+## API Endpoints
 
-## 🛠️ Technologies Used  
-- **Backend Framework:** Spring Boot  
-- **Microservices Frameworks:** Feign, Eureka Server, and Spring Cloud  
-- **Database:** PostgreSQL (H2 for local testing)  
-- **Containerization:** Docker  
-- **Deployment:** Kubernetes  
-- **Security:** Spring Security  
+### companyms — `/companies`
+| Method | Path | Description |
+|---|---|---|
+| GET | `/companies` | List all companies |
+| POST | `/companies` | Create a company |
+| GET | `/companies/{id}` | Get a company by ID |
+| PUT | `/companies/{id}` | Update a company |
+| DELETE | `/companies/{id}` | Delete a company |
 
----
+### jobms — `/job`
+| Method | Path | Description |
+|---|---|---|
+| GET | `/job` | List all jobs |
+| POST | `/job` | Create a job |
+| GET | `/job/{id}` | Get a job by ID |
+| PUT | `/job/{id}` | Update a job |
+| DELETE | `/job/{id}` | Delete a job |
 
-## 🖥️ How to Run  
+### reviewms — `/reviews`
+| Method | Path | Description |
+|---|---|---|
+| GET | `/reviews?companyId={id}` | List reviews for a company |
+| POST | `/reviews?companyId={id}` | Create a review for a company |
+| GET | `/reviews/{reviewId}` | Get a review by ID |
+| PUT | `/reviews/{reviewId}` | Update a review |
+| DELETE | `/reviews/{reviewId}` | Delete a review |
 
-### Prerequisites  
-Ensure the following are installed:  
-- **Java 17+**  
-- **Maven**  
-- **Docker and Docker Compose**  
+Note: `companyId` is stored as a plain foreign key value in `jobms` and `reviewms` rather than a JPA relationship — each service owns its own data independently, since they no longer share a database with `companyms`.
 
-### Steps to Run Locally  
-1. Clone the repository:  
-   ```bash
-   git clone https://github.com/jawahar05900/jobportal_microservices.git
-   cd jobportal_microservices
+## Container Images
 
-2. Build the project:
-   ```bash 
-   mvn clean install
+Each service has its own Dockerfile and is published independently to Docker Hub:
 
-3. Start all services using Docker Compose:
-   ```bash
-   docker-compose up --build
+- `jawahar27/companyms`
+- `jawahar27/jobms`
+- `jawahar27/reviewms`
 
-
-
-
-
-
-## 🌐 How to Access the Services
-Once the application is running, you can access the services at the following URLs:
-
-- **Job Service:** http://localhost:8081
-- **company Service:** http://localhost:8082
-- **review Service:** http://localhost:8083
-- **API Gateway:** http://localhost:8080 (Routes requests to the appropriate service)
+Build and run any service locally:
+docker build -t jawahar27/<service-name> .
+docker run -p <port>:<port> jawahar27/<service-name>
 
 
-## 📈 Future Enhancements
+## Running Locally
 
-- **Real-Time Notifications:** Notify users about application status updates.
-- **Advanced Search & Filters:** Allow users to search jobs with detailed filters.
-- **Premium Features:** Integrate payment gateways for highlighted job postings.
-- **Logging & Monitoring:** Use tools like Prometheus and Grafana for enhanced observability.
+Each service needs its own local PostgreSQL database (`company`, `job`, `review`) and runs independently. Set `DB_USERNAME` and `DB_PASSWORD` environment variables before running:
 
-## 💡 Lessons Learned
-This project helped me gain expertise in:
-
-- Designing and implementing a **microservices architecture**.
-- Using **Spring Boot** for developing scalable REST APIs.
-- Managing **containerized deployments** using Docker and Kubernetes.
-
-## 📝 License
-This project is licensed under the MIT License. Feel free to use and modify it for your needs.
-
-## 👤 Author
-Jawahar J
+cd companyms && ./mvnw spring-boot:run # port 8081
+cd jobms && ./mvnw spring-boot:run # port 8082
+cd reviewms && ./mvnw spring-boot:run # port 8084
 
 
-Copy this and save it as your `README.md` file. Let me know if you need further adjustments! 😊
-### Highlights:
-- All the required details are included in a visually appealing and organized structure.  
-- URLs for accessing services are clearly mentioned.  
-- Professional tone with concise and engaging descriptions.  
+## Known Limitations / Roadmap
 
+This project currently demonstrates splitting a monolith into independently deployable services with separate databases. Not yet implemented:
 
+- Service discovery / registry (Eureka)
+- API Gateway as a single entry point
+- Inter-service communication (Feign / WebClient)
+- Orchestration (Kubernetes)
+- Authentication and authorization
+- Automated tests beyond the default context-load test
+- CI/CD pipeline
+
+These are the planned next steps to make this a more complete microservices reference project.
 
 
